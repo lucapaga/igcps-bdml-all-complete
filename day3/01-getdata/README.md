@@ -1,4 +1,5 @@
-# 2. Ingesting data onto the Cloud
+# Day 3. Next Generation Batch ETL with Dataflow
+## Step 1. Having Data in Cloud
 
 ### Populate your bucket with the data you will need for the lessons
 
