@@ -1,3 +1,4 @@
 */.ipynb_checkpoints/*
 03-tensorflow-experiment-class/data/*
 03-tensorflow-experiment-class/trained_model/*
+**/*.pyc
