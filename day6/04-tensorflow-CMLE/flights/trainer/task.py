@@ -21,7 +21,6 @@ import json
 import os
 
 import tensorflow as tf
-from tensorflow.contrib.learn.python.learn import learn_runner
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
@@ -33,6 +32,16 @@ if __name__ == '__main__':
   parser.add_argument(
       '--evaldata',
       help='Training data can have wildcards',
+      required=True
+  )
+  parser.add_argument(
+      '--origin_file',
+      help='File containing keys for origin column',
+      required=True
+  )
+  parser.add_argument(
+      '--dest_file',
+      help='File containing keys for dest column',
       required=True
   )
   parser.add_argument(
@@ -97,4 +106,28 @@ if __name__ == '__main__':
 
   # run
   tf.logging.set_verbosity(tf.logging.INFO)
-  learn_runner.run(model.make_experiment_fn(**arguments), output_dir)
+  # create estimator
+  estimator = model.wide_and_deep_model(output_dir,
+                                  arguments['origin_file'],
+                                  arguments['dest_file'], 
+                                  arguments['nbuckets'],
+                                  arguments['hidden_units'],
+                                  arguments['learning_rate'])
+
+  estimator = tf.contrib.estimator.add_metrics(estimator, model.my_rmse)
+
+  train_spec = tf.estimator.TrainSpec(input_fn=model.read_dataset(arguments['traindata'], 
+                                                          mode=tf.estimator.ModeKeys.TRAIN, 
+                                                          batch_size=arguments['batch_size'], 
+                                                          num_training_epochs=arguments['num_training_epochs']))
+
+  eval_spec = tf.estimator.EvalSpec(input_fn=model.read_dataset(arguments['evaldata']),
+                                    steps = None,
+                                    start_delay_secs = 20 * 60, # start evaluating after N seconds
+                                    throttle_secs = 10 * 60)  # evaluate every N seconds
+
+  tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
+
+  estimator.export_savedmodel(os.path.join(output_dir,'Servo'),
+                              serving_input_receiver_fn=model.serving_input_fn())
+    
