@@ -118,6 +118,7 @@ def run(project, bucket, dataset):
       '--temp_location=gs://{0}/flights/temp/'.format(bucket),
       '--setup_file=./setup.py',
       '--max_num_workers=10',
+      '--zone=europe-west3-a',
       '--autoscaling_algorithm=THROUGHPUT_BASED',
       '--runner=DataflowRunner'
    ]
