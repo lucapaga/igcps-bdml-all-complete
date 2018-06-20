@@ -112,7 +112,7 @@ def create_row(fields):
 def run(project, bucket, dataset):
    argv = [
       '--project={0}'.format(project),
-      '--job_name=ch04timecorr',
+      '--job_name=telemarday3dfpy',
       '--save_main_session',
       '--staging_location=gs://{0}/flights/staging/'.format(bucket),
       '--temp_location=gs://{0}/flights/temp/'.format(bucket),
