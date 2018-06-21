@@ -1,9 +1,8 @@
 from tensorflow.contrib.learn.python.learn.utils import saved_model_export_utils
-import tensorflow.contrib.learn as tflearn
-import tensorflow.contrib.layers as tflayers
 import tensorflow.contrib.metrics as tfmetrics
 import tensorflow as tf
 import numpy as np
+import os
 
 CSV_COLUMNS  = ('ontime,dep_delay,taxiout,distance,avg_dep_delay,avg_arr_delay' + \
                 ',carrier,dep_lat,dep_lon,arr_lat,arr_lon,origin,dest').split(',')
@@ -33,73 +32,54 @@ def read_dataset(filename, mode=tf.contrib.learn.ModeKeys.EVAL, batch_size=512, 
   
   return _input_fn
 
-def get_features_raw():
+def get_features_raw(origin_file, dest_file):
     real = {
-      colname : tflayers.real_valued_column(colname) \
+      colname : tf.feature_column.numeric_column(colname) \
           for colname in \
             ('dep_delay,taxiout,distance,avg_dep_delay,avg_arr_delay' + 
              ',dep_lat,dep_lon,arr_lat,arr_lon').split(',')
     }
     sparse = {
-      'carrier': tflayers.sparse_column_with_keys('carrier',
-                  keys='AS,VX,F9,UA,US,WN,HA,EV,MQ,DL,OO,B6,NK,AA'.split(',')),
-      'origin' : tflayers.sparse_column_with_hash_bucket('origin', hash_bucket_size=1000), # FIXME
-      'dest'   : tflayers.sparse_column_with_hash_bucket('dest', hash_bucket_size=1000) #FIXME
+      'carrier': tf.feature_column.categorical_column_with_vocabulary_list('carrier',
+                  vocabulary_list='AS,B6,WN,HA,OO,F9,NK,EV,DL,UA,US,AA,MQ,VX'.split(','),
+                  dtype=tf.string)
+      , 'origin': tf.feature_column.categorical_column_with_vocabulary_file('origin',origin_file)
+      , 'dest'   : tf.feature_column.categorical_column_with_vocabulary_file('dest',dest_file)
     }
     return real, sparse
 
-def get_features_ch7():
-    """Using only the three inputs we originally used in Chapter 7"""
-    real = {
-      colname : tflayers.real_valued_column(colname) \
-          for colname in \
-            ('dep_delay,taxiout,distance').split(',')
-    }
-    sparse = {}
-    return real, sparse
-
-def get_features_ch8():
-    """Using the three inputs we originally used in Chapter 7, plus the time averages computed in Chapter 8"""
-    real = {
-      colname : tflayers.real_valued_column(colname) \
-          for colname in \
-            ('dep_delay,taxiout,distance,avg_dep_delay,avg_arr_delay').split(',')
-    }
-    sparse = {}
-    return real, sparse
-
-def get_features():
-    return get_features_raw()
-    #return get_features_ch7()
-    #return get_features_ch8()
+def get_features(origin_file, dest_file):
+    return get_features_raw(origin_file, dest_file)
 
 def parse_hidden_units(s):
     return [int(item) for item in s.split(',')]
 
-def wide_and_deep_model(output_dir, nbuckets=5, hidden_units='64,32', learning_rate=0.01):
-    real, sparse = get_features()
+def wide_and_deep_model(output_dir,  origin_file, dest_file, nbuckets=5, hidden_units='64,32', learning_rate=0.01):
+    real, sparse = get_features(origin_file, dest_file)
 
     # the lat/lon columns can be discretized to yield "air traffic corridors"
     latbuckets = np.linspace(20.0, 50.0, nbuckets).tolist()  # USA
     lonbuckets = np.linspace(-120.0, -70.0, nbuckets).tolist() # USA
     disc = {}
     disc.update({
-       'd_{}'.format(key) : tflayers.bucketized_column(real[key], latbuckets) \
+       'd_{}'.format(key) : tf.feature_column.bucketized_column(real[key], latbuckets) \
           for key in ['dep_lat', 'arr_lat']
     })
     disc.update({
-       'd_{}'.format(key) : tflayers.bucketized_column(real[key], lonbuckets) \
+       'd_{}'.format(key) : tf.feature_column.bucketized_column(real[key], lonbuckets) \
           for key in ['dep_lon', 'arr_lon']
     })
 
     # cross columns that make sense in combination
-    sparse['dep_loc'] = tflayers.crossed_column([disc['d_dep_lat'], disc['d_dep_lon']],\
+    sparse['dep_loc'] = tf.feature_column.crossed_column([disc['d_dep_lat'], disc['d_dep_lon']],\
                                                 nbuckets*nbuckets)
-    sparse['arr_loc'] = tflayers.crossed_column([disc['d_arr_lat'], disc['d_arr_lon']],\
+    sparse['dep_loc'] = tf.feature_column.crossed_column([disc['d_dep_lat'], disc['d_dep_lon']],\
                                                 nbuckets*nbuckets)
-    sparse['dep_arr'] = tflayers.crossed_column([sparse['dep_loc'], sparse['arr_loc']],\
+    sparse['arr_loc'] = tf.feature_column.crossed_column([disc['d_arr_lat'], disc['d_arr_lon']],\
+                                                nbuckets*nbuckets)
+    sparse['dep_arr'] = tf.feature_column.crossed_column([sparse['dep_loc'], sparse['arr_loc']],\
                                                 nbuckets ** 4)
-    sparse['ori_dest'] = tflayers.crossed_column([sparse['origin'], sparse['dest']], \
+    sparse['ori_dest'] = tf.feature_column.crossed_column([sparse['origin'], sparse['dest']], \
                                                 hash_bucket_size=1000)
     
     # create embeddings of all the sparse columns
@@ -108,24 +88,17 @@ def wide_and_deep_model(output_dir, nbuckets=5, hidden_units='64,32', learning_r
           for colname, col in sparse.items()
     }
     real.update(embed)
- 
+    
     estimator = \
-        tflearn.DNNLinearCombinedClassifier(model_dir=output_dir,
+        tf.estimator.DNNLinearCombinedClassifier(model_dir=output_dir,
                                            linear_feature_columns=sparse.values(),
                                            dnn_feature_columns=real.values(),
                                            dnn_hidden_units=parse_hidden_units(hidden_units),
+                                           loss_reduction=tf.losses.Reduction.SUM_OVER_BATCH_SIZE,
                                            linear_optimizer=tf.train.FtrlOptimizer(learning_rate=learning_rate),
                                            dnn_optimizer=tf.train.AdagradOptimizer(learning_rate=learning_rate*0.25))
-    estimator.params["head"]._thresholds = [0.7]  # FIXME: hack
-    return estimator
-   
-def linear_model(output_dir):
-    real, sparse = get_features()
-    all = {}
-    all.update(real)
-    all.update(sparse)
-    estimator = tflearn.LinearClassifier(model_dir=output_dir, feature_columns=all.values())
-    estimator.params["head"]._thresholds = [0.7]  # FIXME: hack
+    
+    # estimator.params["head"]._thresholds = [0.7]  # FIXME: hack (seems it's not a valid member)
     return estimator
 
 def create_embed(sparse_col):
@@ -134,31 +107,7 @@ def create_embed(sparse_col):
        nbins = sparse_col.bucket_size
        if nbins is not None:
           dim = 1 + int(round(np.log2(nbins)))
-    return tflayers.embedding_column(sparse_col, dimension=dim)
-
-def dnn_model(output_dir):
-    real, sparse = get_features()
-    all = {}
-    all.update(real)
-
-    # create embeddings of the sparse columns
-    embed = {
-       colname : create_embed(col) \
-          for colname, col in sparse.items()
-    }
-    all.update(embed)
-
-    estimator = tflearn.DNNClassifier(model_dir=output_dir,
-                                      feature_columns=all.values(),
-                                      hidden_units=[64, 16, 4])
-    estimator.params["head"]._thresholds = [0.7]  # FIXME: hack
-    return estimator
-
-def get_model(output_dir, nbuckets, hidden_units, learning_rate):
-    #return linear_model(output_dir)
-    #return dnn_model(output_dir)
-    return wide_and_deep_model(output_dir, nbuckets, hidden_units, learning_rate)
-
+    return tf.feature_column.embedding_column(sparse_col, dimension=dim)
 
 def serving_input_fn():
     feature_placeholders = {
@@ -175,32 +124,9 @@ def serving_input_fn():
       key: tf.expand_dims(tensor, -1)
       for key, tensor in feature_placeholders.items()
     }
-    return tflearn.utils.input_fn_utils.InputFnOps(
-      features,
-      None,
-      feature_placeholders)
+    return tf.estimator.export.build_raw_serving_input_receiver_fn(feature_placeholders)
 
 def my_rmse(predictions, labels, **args):
-  prob_ontime = predictions[:,1]
-  return tfmetrics.streaming_root_mean_squared_error(prob_ontime, labels, **args)
+  prob_ontime = predictions['probabilities'][:,1]
 
-def make_experiment_fn(traindata, evaldata, num_training_epochs,
-                       batch_size, nbuckets, hidden_units, learning_rate, **args):
-  def _experiment_fn(output_dir):
-    return tflearn.Experiment(
-        get_model(output_dir, nbuckets, hidden_units, learning_rate),
-        train_input_fn=read_dataset(traindata, mode=tf.contrib.learn.ModeKeys.TRAIN, num_training_epochs=num_training_epochs, batch_size=batch_size),
-        eval_input_fn=read_dataset(evaldata),
-        export_strategies=[saved_model_export_utils.make_export_strategy(
-            serving_input_fn,
-            default_output_alternative_key=None,
-            exports_to_keep=1
-        )],
-        eval_metrics = {
-	    'rmse' : tflearn.MetricSpec(metric_fn=my_rmse, prediction_key='probabilities'),
-            'training/hptuning/metric' : tflearn.MetricSpec(metric_fn=my_rmse, prediction_key='probabilities')
-        },
-        min_eval_frequency = 100,
-        **args
-    )
-  return _experiment_fn
+  return {'rmse': tf.metrics.root_mean_squared_error(prob_ontime, labels)}
