@@ -1,2 +1,3 @@
 day5/02-dataflow-java-streaming/df-java-source/bin/src/main/java/com/google/cloud/training/flights/*.class
 day3/01-getdata/airports.csv
+.vscode
