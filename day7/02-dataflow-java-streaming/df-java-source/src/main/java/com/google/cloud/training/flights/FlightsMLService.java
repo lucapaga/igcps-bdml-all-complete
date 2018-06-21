@@ -23,7 +23,7 @@ import com.google.gson.GsonBuilder;
 
 public class FlightsMLService {
   private static final Logger LOG = LoggerFactory.getLogger(FlightsMLService.class);
-  private static final String PROJECT = "cloud-training-demos";
+  private static final String PROJECT = "telemar-formazione-master";
   private static String       MODEL   = "flights";
   private static String       VERSION = "v1";
 
@@ -55,7 +55,7 @@ public class FlightsMLService {
   static class Prediction {
     List<Double> probabilities = new ArrayList<>();
     List<Double> logits        = new ArrayList<>();
-    int          classes;
+    List<Integer> classes      = new ArrayList<>();
     List<Double> logistic      = new ArrayList<>();
   }
 
