@@ -96,7 +96,7 @@ public class AddRealtimePrediction {
     if (options.isRealtime()) {
       options.setStreaming(true);
     }    
-    options.setRunner(DataflowRunner.class);
+    //options.setRunner(DataflowRunner.class);
     options.setTempLocation(getTempLocation(options));
     Pipeline p = Pipeline.create(options);
 
