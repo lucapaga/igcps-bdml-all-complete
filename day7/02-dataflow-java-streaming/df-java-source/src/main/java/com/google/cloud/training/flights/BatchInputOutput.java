@@ -27,6 +27,7 @@ public class BatchInputOutput extends InputOutput {
     String query = "SELECT EVENT_DATA FROM flights.simevents WHERE ";
     query += " STRING(FL_DATE) = '2015-01-04' AND ";
     query += " (EVENT = 'wheelsoff' OR EVENT = 'arrived') ";
+    query += " LIMIT 1000 ";
     LOG.info(query);
 
     PCollection<Flight> allFlights = p //
