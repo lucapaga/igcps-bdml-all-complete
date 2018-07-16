@@ -105,7 +105,7 @@ WHERE
 ORDER BY
   NOTIFY_TIME ASC
 """
-   rows = bqclient.query_rows(querystr.format(jitter,
+   rows = bqclient.query(querystr.format(jitter,
                                                    args.startTime,
                                                    args.endTime))
    
