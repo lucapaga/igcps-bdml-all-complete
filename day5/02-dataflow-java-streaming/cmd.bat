@@ -1,1 +1,0 @@
-mvn compile exec:java  -Dexec.mainClass=com.google.cloud.training.flights.AverageDelayPipeline -Dexec.args="--project=telemar-formazione-dev-quattro --stagingLocation=gs://telemar-formazione-dev-quattro-df-staging-01/staging/ --averagingInterval=60 --speedupFactor=30 --runner=DataflowRunner"
