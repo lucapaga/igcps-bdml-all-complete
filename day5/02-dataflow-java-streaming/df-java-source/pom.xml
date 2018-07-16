@@ -3,8 +3,8 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.google.cloud.training.flights</groupId>
-  <artifactId>chapter4</artifactId>
+  <groupId>it.injenia.formazione.gcp.dataplatform.dataflow</groupId>
+  <artifactId>df-java-streaming</artifactId>
   <version>[1.0.0,2.0.0]</version>
 
   <build>
