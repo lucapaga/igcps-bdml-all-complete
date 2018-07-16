@@ -28,7 +28,7 @@ import org.apache.beam.sdk.transforms.ParDo;
 /**
  * A dataflow pipeline that demonstrates TextIO and startup options.
  * 
- * @author vlakshmanan
+ * @author vlakshmanan, luca.paganelli@injenia.it
  *
  */
 public class CreateTrainingDataset2 {
@@ -53,12 +53,12 @@ public class CreateTrainingDataset2 {
 
     p //
         .apply("ReadLines", TextIO.read().from(options.getInput())) //
-        .apply("FilterMIA", ParDo.of(new DoFn<String, String>() {
+        .apply("FilterDFW", ParDo.of(new DoFn<String, String>() {
 
           @ProcessElement
           public void processElement(ProcessContext c) {
             String input = c.element();
-            if (input.contains("MIA")) {
+            if (input.contains("DFW")) {
               c.output(input);
             }
           }

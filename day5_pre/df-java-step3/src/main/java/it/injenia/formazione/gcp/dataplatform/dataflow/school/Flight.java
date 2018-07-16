@@ -82,7 +82,8 @@ public class Flight {
   private static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
   public int getDepartureHour() {
-    String timestamp = getField(INPUTCOLS.DEP_TIME).replace('T', ' ');
+//    String timestamp = getField(INPUTCOLS.DEP_TIME).replace('T', ' ');
+    String timestamp = getField(INPUTCOLS.DEP_TIME).replace(" UTC", "");
     float offset = getFieldAsFloat(INPUTCOLS.DEP_AIRPORT_TZOFFSET);
     DateTime dt = fmt.parseDateTime(timestamp);
     dt = dt.plusMinutes((int) (0.5 + offset));
@@ -129,7 +130,8 @@ public class Flight {
   }
   
   public Instant getEventTimestamp() {
-    String timestamp = getField(INPUTCOLS.NOTIFY_TIME).replace('T', ' ');
+//    String timestamp = getField(INPUTCOLS.NOTIFY_TIME).replace('T', ' ');
+    String timestamp = getField(INPUTCOLS.NOTIFY_TIME).replace(" UTC", "");
     DateTime dt = fmt.parseDateTime(timestamp);
     return dt.toInstant();
   }

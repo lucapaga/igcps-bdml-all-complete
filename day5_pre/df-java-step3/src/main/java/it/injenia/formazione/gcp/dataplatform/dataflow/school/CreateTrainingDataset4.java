@@ -34,7 +34,7 @@ import it.injenia.formazione.gcp.dataplatform.dataflow.school.Flight.INPUTCOLS;
  * Demonstrates use of key-value pairs and aggregations. Essentially, this is
  * how you do Map-Reduce in Dataflow
  * 
- * @author vlakshmanan
+ * @author vlakshmanan, luca.paganelli@injenia.it
  *
  */
 public class CreateTrainingDataset4 {
@@ -46,7 +46,7 @@ public class CreateTrainingDataset4 {
 		void setInput(String s);
 
 		@Description("Path of the output directory")
-		@Default.String("C:\\opt\\tests\\df-java-step2")
+		@Default.String("C:\\opt\\tests\\df-java-step3")
 		String getOutput();
 
 		void setOutput(String s);
@@ -79,7 +79,7 @@ public class CreateTrainingDataset4 {
 					}
 				}));
 
-		PCollection<KV<String, Double>> delays = flights
+		PCollection<KV<String, Double>> airportHourlyDelaysMap = flights
 				.apply("airport:hour", ParDo.of(new DoFn<Flight, KV<String, Double>>() {
 
 					@ProcessElement
@@ -93,10 +93,10 @@ public class CreateTrainingDataset4 {
 						}
 					}
 
-				})) //
-				.apply("avgDepDelay", Mean.perKey());
+				})); //
+		PCollection<KV<String, Double>> airportHourlyDelaysReduce = airportHourlyDelaysMap.apply("avgDepDelay", Mean.perKey());
 
-		delays.apply("DelayToCsv", ParDo.of(new DoFn<KV<String, Double>, String>() {
+		airportHourlyDelaysReduce.apply("DelayToCsv", ParDo.of(new DoFn<KV<String, Double>, String>() {
 			@ProcessElement
 			public void processElement(ProcessContext c) throws Exception {
 				KV<String, Double> kv = c.element();
@@ -104,8 +104,37 @@ public class CreateTrainingDataset4 {
 			}
 		})) //
 				.apply("WriteDelays",
-						TextIO.write().to(options.getOutput() + "delays4").withSuffix(".csv").withoutSharding());
+						TextIO.write().to(options.getOutput() + "_delays").withSuffix(".csv").withoutSharding());
 
+
+		PCollection<KV<String, Double>> airportOverallMeanDelayMap = flights
+				.apply("airport:overall", ParDo.of(new DoFn<Flight, KV<String, Double>>() {
+
+					@ProcessElement
+					public void processElement(ProcessContext c) throws Exception {
+						Flight f = c.element();
+						if (f.getField(Flight.INPUTCOLS.EVENT).equals("wheelsoff")) {
+							String key = f.getField(Flight.INPUTCOLS.ORIGIN);// + ":" + f.getDepartureHour();
+							double value = f.getFieldAsFloat(Flight.INPUTCOLS.DEP_DELAY)
+									+ f.getFieldAsFloat(Flight.INPUTCOLS.TAXI_OUT);
+							c.output(KV.of(key, value));
+						}
+					}
+
+				})); //
+		PCollection<KV<String, Double>> airportOverallMeanDelayReduce = airportOverallMeanDelayMap.apply("avgOverallDepDelay", Mean.perKey());
+
+		airportOverallMeanDelayReduce.apply("OverallAirportDelayToCsv", ParDo.of(new DoFn<KV<String, Double>, String>() {
+			@ProcessElement
+			public void processElement(ProcessContext c) throws Exception {
+				KV<String, Double> kv = c.element();
+				c.output(kv.getKey() + "," + kv.getValue());
+			}
+		})) //
+				.apply("OverallAirportWriteDelays",
+						TextIO.write().to(options.getOutput() + "_overall-delays").withSuffix(".csv").withoutSharding());
+
+		
 		flights.apply("ToCsv", ParDo.of(new DoFn<Flight, String>() {
 			@ProcessElement
 			public void processElement(ProcessContext c) throws Exception {
@@ -116,7 +145,7 @@ public class CreateTrainingDataset4 {
 			}
 		})) //
 				.apply("WriteFlights",
-						TextIO.write().to(options.getOutput() + "flights4").withSuffix(".csv").withoutSharding());
+						TextIO.write().to(options.getOutput() + "_flights").withSuffix(".csv").withoutSharding());
 
 		p.run();
 	}
