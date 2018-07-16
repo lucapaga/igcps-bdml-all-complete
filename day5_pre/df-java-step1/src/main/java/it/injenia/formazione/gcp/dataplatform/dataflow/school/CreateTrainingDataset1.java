@@ -27,9 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A dataflow pipeline that demonstrates filtering.
+ * A dataflow pipeline that demonstrates filtering:
+ *  - uses an array of strings as input (a subset of BQ flights.simevents table columns)
+ *  - filter records that relate to flights departing from or arriving to Miami (MIA) airport
+ *  - outputs to console log
  * 
- * @author vlakshmanan
+ * @author vlakshmanan, luca.paganelli@injenia.it
  *
  */
 public class CreateTrainingDataset1 {

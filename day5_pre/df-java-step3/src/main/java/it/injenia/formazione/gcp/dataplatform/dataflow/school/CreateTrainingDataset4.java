@@ -28,7 +28,7 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 
-import com.google.cloud.training.flights.Flight.INPUTCOLS;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.Flight.INPUTCOLS;
 
 /**
  * Demonstrates use of key-value pairs and aggregations. Essentially, this is
@@ -38,84 +38,86 @@ import com.google.cloud.training.flights.Flight.INPUTCOLS;
  *
  */
 public class CreateTrainingDataset4 {
-  public static interface MyOptions extends PipelineOptions {
-    @Description("Path of the file to read from")
-    @Default.String("C:\\opt\\data\\flights\\small.csv")
-    String getInput();
+	public static interface MyOptions extends PipelineOptions {
+		@Description("Path of the file to read from")
+		@Default.String("C:\\opt\\data\\flights\\small.csv")
+		String getInput();
 
-    void setInput(String s);
+		void setInput(String s);
 
-    @Description("Path of the output directory")
-    @Default.String("C:\\opt\\tests\\df-java-step2")
-    String getOutput();
+		@Description("Path of the output directory")
+		@Default.String("C:\\opt\\tests\\df-java-step2")
+		String getOutput();
 
-    void setOutput(String s);
-  }
+		void setOutput(String s);
+	}
 
-  @SuppressWarnings("serial")
-  public static void main(String[] args) {
-    MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
-    Pipeline p = Pipeline.create(options);
+	@SuppressWarnings("serial")
+	public static void main(String[] args) {
+		MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
+		Pipeline p = Pipeline.create(options);
 
-    PCollection<Flight> flights = p //
-        .apply("ReadLines", TextIO.read().from(options.getInput())) //
-        .apply("ParseFlights", ParDo.of(new DoFn<String, Flight>() {
-          @ProcessElement
-          public void processElement(ProcessContext c) throws Exception {
-            String line = c.element();
-            Flight f = Flight.fromCsv(line);
-            if (f != null) {
-              c.output(f);
-            }
-          }
-        })) //
-        .apply("GoodFlights", ParDo.of(new DoFn<Flight, Flight>() {
-          @ProcessElement
-          public void processElement(ProcessContext c) throws Exception {
-            Flight f = c.element();
-            if (f.isNotCancelled() && f.isNotDiverted()) {
-              c.output(f);
-            }
-          }
-        }));
+		PCollection<Flight> flights = p //
+				.apply("ReadLines", TextIO.read().from(options.getInput())) //
+				.apply("ParseFlights", ParDo.of(new DoFn<String, Flight>() {
+					@ProcessElement
+					public void processElement(ProcessContext c) throws Exception {
+						String line = c.element();
+						Flight f = Flight.fromCsv(line);
+						if (f != null) {
+							c.output(f);
+						}
+					}
+				})) //
+				.apply("GoodFlights", ParDo.of(new DoFn<Flight, Flight>() {
+					@ProcessElement
+					public void processElement(ProcessContext c) throws Exception {
+						Flight f = c.element();
+						if (f.isNotCancelled() && f.isNotDiverted()) {
+							c.output(f);
+						}
+					}
+				}));
 
-    PCollection<KV<String, Double>> delays = flights
-        .apply("airport:hour", ParDo.of(new DoFn<Flight, KV<String, Double>>() {
+		PCollection<KV<String, Double>> delays = flights
+				.apply("airport:hour", ParDo.of(new DoFn<Flight, KV<String, Double>>() {
 
-          @ProcessElement
-          public void processElement(ProcessContext c) throws Exception {
-            Flight f = c.element();
-            if (f.getField(Flight.INPUTCOLS.EVENT).equals("wheelsoff")) {
-              String key = f.getField(Flight.INPUTCOLS.ORIGIN) + ":" + f.getDepartureHour();
-              double value = f.getFieldAsFloat(Flight.INPUTCOLS.DEP_DELAY)
-                  + f.getFieldAsFloat(Flight.INPUTCOLS.TAXI_OUT);
-              c.output(KV.of(key, value));
-            }
-          }
+					@ProcessElement
+					public void processElement(ProcessContext c) throws Exception {
+						Flight f = c.element();
+						if (f.getField(Flight.INPUTCOLS.EVENT).equals("wheelsoff")) {
+							String key = f.getField(Flight.INPUTCOLS.ORIGIN) + ":" + f.getDepartureHour();
+							double value = f.getFieldAsFloat(Flight.INPUTCOLS.DEP_DELAY)
+									+ f.getFieldAsFloat(Flight.INPUTCOLS.TAXI_OUT);
+							c.output(KV.of(key, value));
+						}
+					}
 
-        })) //
-        .apply("avgDepDelay", Mean.perKey());
+				})) //
+				.apply("avgDepDelay", Mean.perKey());
 
-    delays.apply("DelayToCsv", ParDo.of(new DoFn<KV<String, Double>, String>() {
-      @ProcessElement
-      public void processElement(ProcessContext c) throws Exception {
-        KV<String, Double> kv = c.element();
-        c.output(kv.getKey() + "," + kv.getValue());
-      }
-    })) //
-        .apply("WriteDelays", TextIO.write().to(options.getOutput() + "delays4").withSuffix(".csv").withoutSharding());
+		delays.apply("DelayToCsv", ParDo.of(new DoFn<KV<String, Double>, String>() {
+			@ProcessElement
+			public void processElement(ProcessContext c) throws Exception {
+				KV<String, Double> kv = c.element();
+				c.output(kv.getKey() + "," + kv.getValue());
+			}
+		})) //
+				.apply("WriteDelays",
+						TextIO.write().to(options.getOutput() + "delays4").withSuffix(".csv").withoutSharding());
 
-    flights.apply("ToCsv", ParDo.of(new DoFn<Flight, String>() {
-      @ProcessElement
-      public void processElement(ProcessContext c) throws Exception {
-        Flight f = c.element();
-        if (f.getField(INPUTCOLS.EVENT).equals("arrived")) {
-          c.output(f.toTrainingCsv());
-        }
-      }
-    })) //
-        .apply("WriteFlights", TextIO.write().to(options.getOutput() + "flights4").withSuffix(".csv").withoutSharding());
+		flights.apply("ToCsv", ParDo.of(new DoFn<Flight, String>() {
+			@ProcessElement
+			public void processElement(ProcessContext c) throws Exception {
+				Flight f = c.element();
+				if (f.getField(INPUTCOLS.EVENT).equals("arrived")) {
+					c.output(f.toTrainingCsv());
+				}
+			}
+		})) //
+				.apply("WriteFlights",
+						TextIO.write().to(options.getOutput() + "flights4").withSuffix(".csv").withoutSharding());
 
-    p.run();
-  }
+		p.run();
+	}
 }
