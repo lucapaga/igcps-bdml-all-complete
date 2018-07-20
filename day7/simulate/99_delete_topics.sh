@@ -8,7 +8,7 @@ fi
 PROJECT=$1
 
 
-for topic in 'arrived' 'departed' 'wheelsoff'
+for topic in 'arrived' 'departed' 'wheelsoff' 'dataflow_temp'
 do 
 	gcloud  pubsub topics delete projects/${PROJECT}/topics/$topic
 done

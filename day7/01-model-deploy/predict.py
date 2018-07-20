@@ -1,7 +1,8 @@
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
+import os
 
-PROJECT = os.environ['PROJECT']
+PROJECT_ID = os.environ['PROJECT_ID']
 MODEL_NAME = os.environ['MODEL_NAME']
 MODEL_VERSION = os.environ['MODEL_VERSION']
 
@@ -26,7 +27,7 @@ request_data = {'instances':
 	]
 }
     
-parent = 'projects/{}/models/{}/versions/{}'.format(PROJECT, MODEL_NAME, MODEL_VERSION)
+parent = 'projects/{}/models/{}/versions/{}'.format(PROJECT_ID, MODEL_NAME, MODEL_VERSION)
 response = api.projects().predict(body=request_data, name=parent).execute()
 print(response['predictions'])
 
