@@ -1,4 +1,4 @@
 cd df-java-source
 
 mvn compile exec:java ^
-	-Dexec.mainClass=com.google.cloud.training.flights.FlightsMLService
+	-Dexec.mainClass=it.injenia.formazione.gcp.dataplatform.dataflow.school.FlightsMLService

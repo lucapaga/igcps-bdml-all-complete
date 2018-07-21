@@ -22,6 +22,7 @@ public class BatchInputOutput extends InputOutput {
     return "gs://BUCKET/flights/chapter10/output/".replace("BUCKET", opts.getBucket());
   }
   
+  @SuppressWarnings("deprecation")
   @Override
   public PCollection<Flight> readFlights(Pipeline p, MyOptions options) {
     String query = "SELECT EVENT_DATA FROM flights.simevents WHERE ";
