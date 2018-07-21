@@ -3,19 +3,17 @@
 #standardsql
 SELECT
   airport,
-  (FORMAT("%f,%f",latitude,longitude)) AS location,
+  (FORMAT("%f,%f", latitude, longitude)) AS location,
   FORMAT_TIMESTAMP('%Y%m%d-%H%M%S', timestamp) AS timestamp,
   dep_delay,
   arr_delay,
   num_flights
 FROM
-  `cloud-training-demos.flights.streaming_delays`
+  `flights.streaming_delays`
 WHERE
   airport = 'DEN'
 ORDER BY
   timestamp DESC
-
-
 
 
 
@@ -27,14 +25,15 @@ SELECT
   timestamp,
   latitude,
   longitude,
+  (FORMAT("%f,%f", latitude, longitude)) AS location,
   num_flights
 FROM
-  `cloud-training-demos.flights.streaming_delays` t1
+  `flights.streaming_delays` t1
 INNER JOIN (
   SELECT
     MAX(timestamp) latest
   FROM
-    `cloud-training-demos.flights.streaming_delays` ) t2
+    `flights.streaming_delays` ) t2
 ON
   ABS(TIMESTAMP_DIFF(t1.timestamp, t2.latest, MINUTE)) < 29
 WHERE
@@ -50,7 +49,7 @@ SELECT
   (STRING(LAST(latitude)) + "," + STRING(LAST(longitude))) AS location,
   LAST(num_flights) AS num_flights
 FROM
-  [cloud-training-demos:flights.streaming_delays]
+  [flights.streaming_delays]
 GROUP BY airport
 
 
@@ -63,5 +62,5 @@ SELECT
   (STRING(LAST(latitude)) + "," + STRING(LAST(longitude))) AS location,
   LAST(num_flights) as num_flights,
 FROM
-  [cloud-training-demos:flights.streaming_delays]
+  [flights.streaming_delays]
 GROUP BY airport
