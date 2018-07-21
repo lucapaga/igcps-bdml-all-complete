@@ -1,4 +1,4 @@
-package com.google.cloud.training.flights;
+package it.injenia.formazione.gcp.dataplatform.dataflow.school;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -22,8 +22,8 @@ import com.google.cloud.bigtable.config.BigtableOptions;
 import com.google.cloud.bigtable.config.CredentialOptions;
 import com.google.cloud.bigtable.grpc.BigtableSession;
 import com.google.cloud.bigtable.grpc.BigtableTableAdminClient;
-import com.google.cloud.training.flights.AddRealtimePrediction.MyOptions;
-import com.google.cloud.training.flights.Flight.INPUTCOLS;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.AddRealtimePrediction.MyOptions;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.Flight.INPUTCOLS;
 import com.google.protobuf.ByteString;
 
 @SuppressWarnings("serial")

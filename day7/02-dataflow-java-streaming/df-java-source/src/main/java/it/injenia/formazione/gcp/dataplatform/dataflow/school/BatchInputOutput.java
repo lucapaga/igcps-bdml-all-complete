@@ -1,4 +1,4 @@
-package com.google.cloud.training.flights;
+package it.injenia.formazione.gcp.dataplatform.dataflow.school;
 
 import java.text.DecimalFormat;
 
@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.api.services.bigquery.model.TableRow;
-import com.google.cloud.training.flights.AddRealtimePrediction.MyOptions;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.AddRealtimePrediction.MyOptions;
 
 @SuppressWarnings("serial")
 public class BatchInputOutput extends InputOutput {

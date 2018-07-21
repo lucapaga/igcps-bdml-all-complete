@@ -1,4 +1,4 @@
-package com.google.cloud.training.flights;
+package it.injenia.formazione.gcp.dataplatform.dataflow.school;
 
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.DefaultCoder;

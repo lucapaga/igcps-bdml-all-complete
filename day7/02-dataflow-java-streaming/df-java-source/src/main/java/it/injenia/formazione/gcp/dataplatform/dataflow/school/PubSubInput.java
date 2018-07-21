@@ -1,4 +1,4 @@
-package com.google.cloud.training.flights;
+package it.injenia.formazione.gcp.dataplatform.dataflow.school;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
@@ -8,7 +8,7 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionList;
 
-import com.google.cloud.training.flights.AddRealtimePrediction.MyOptions;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.AddRealtimePrediction.MyOptions;
 
 @SuppressWarnings("serial")
 public abstract class PubSubInput extends InputOutput {

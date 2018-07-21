@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.google.cloud.training.flights;
+package it.injenia.formazione.gcp.dataplatform.dataflow.school;
 
 import java.util.Map;
 
@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.api.services.bigquery.model.TableRow;
-import com.google.cloud.training.flights.Flight.INPUTCOLS;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.Flight.INPUTCOLS;
 
 /**
  * Efficient version that uses CoGroupByKey.

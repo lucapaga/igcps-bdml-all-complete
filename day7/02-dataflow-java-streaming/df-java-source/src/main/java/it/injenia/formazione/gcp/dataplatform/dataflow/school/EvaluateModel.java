@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.google.cloud.training.flights;
+package it.injenia.formazione.gcp.dataplatform.dataflow.school;
 
 import java.text.DecimalFormat;
 import java.util.Map;
@@ -35,7 +35,7 @@ import org.apache.beam.sdk.values.PCollectionView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.cloud.training.flights.Flight.INPUTCOLS;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.Flight.INPUTCOLS;
 
 /**
  * Evaluate ML model.

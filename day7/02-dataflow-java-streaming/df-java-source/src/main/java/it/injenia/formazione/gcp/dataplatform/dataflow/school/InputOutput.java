@@ -1,4 +1,4 @@
-package com.google.cloud.training.flights;
+package it.injenia.formazione.gcp.dataplatform.dataflow.school;
 
 import java.io.Serializable;
 
@@ -9,8 +9,8 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 
-import com.google.cloud.training.flights.AddRealtimePrediction.MyOptions;
-import com.google.cloud.training.flights.Flight.INPUTCOLS;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.AddRealtimePrediction.MyOptions;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.Flight.INPUTCOLS;
 
 @SuppressWarnings("serial")
 public abstract class InputOutput implements Serializable {

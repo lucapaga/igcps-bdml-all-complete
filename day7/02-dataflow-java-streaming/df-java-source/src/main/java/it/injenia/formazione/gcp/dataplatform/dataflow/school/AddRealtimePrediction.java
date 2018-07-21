@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.google.cloud.training.flights;
+package it.injenia.formazione.gcp.dataplatform.dataflow.school;
 
 import java.util.Map;
 

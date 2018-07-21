@@ -1,4 +1,4 @@
-package com.google.cloud.training.flights;
+package it.injenia.formazione.gcp.dataplatform.dataflow.school;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +11,8 @@ import org.apache.beam.sdk.values.PCollection;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
-import com.google.cloud.training.flights.AddRealtimePrediction.MyOptions;
-import com.google.cloud.training.flights.Flight.INPUTCOLS;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.AddRealtimePrediction.MyOptions;
+import it.injenia.formazione.gcp.dataplatform.dataflow.school.Flight.INPUTCOLS;
 
 @SuppressWarnings("serial")
 public class PubSubBigQuery extends PubSubInput {
