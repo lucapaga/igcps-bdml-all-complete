@@ -48,6 +48,7 @@ public abstract class PubSubInput extends InputOutput {
   // workaround  b/34884809 by streaming to a new topic and reading from it.
   public PCollection<Flight> readFlights_workaround(Pipeline p, MyOptions options) {
     String tempTopic = "projects/" + options.getProject() + "/topics/dataflow_temp";
+    // HANDS ON: insert your solution here
 
     // read flights from each of two topics, and write to combined
     for (String eventType : new String[]{"wheelsoff", "arrived"}){

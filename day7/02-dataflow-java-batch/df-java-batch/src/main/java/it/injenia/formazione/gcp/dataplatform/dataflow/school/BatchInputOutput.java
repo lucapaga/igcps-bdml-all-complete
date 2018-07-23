@@ -30,7 +30,8 @@ public class BatchInputOutput extends InputOutput {
     query += " (EVENT = 'wheelsoff' OR EVENT = 'arrived') ";
     query += " LIMIT 1000 ";
     LOG.info(query);
-
+    
+    // HANDS ON: insert your solution here
     PCollection<Flight> allFlights = p //
         .apply("ReadLines", BigQueryIO.read().fromQuery(query)) //
         .apply("ParseFlights", ParDo.of(new DoFn<TableRow, Flight>() {
@@ -49,7 +50,8 @@ public class BatchInputOutput extends InputOutput {
 
   @Override
   public void writeFlights(PCollection<Flight> outFlights, MyOptions options) {
-    // PCollection<String> lines = addPredictionOneByOne(outFlights);
+	
+	// HANDS ON: insert your solution here  
     try {
       PCollection<FlightPred> prds = addPredictionInBatches(outFlights);
       PCollection<String> lines = predToCsv(prds);

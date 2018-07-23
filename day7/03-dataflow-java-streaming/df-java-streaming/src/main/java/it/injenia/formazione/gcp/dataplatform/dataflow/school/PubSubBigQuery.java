@@ -32,6 +32,8 @@ public class PubSubBigQuery extends PubSubInput {
 
   @Override
   public void writeFlights(PCollection<Flight> outFlights, MyOptions options) {
+	// HANDS ON: insert your solution here
+
     String outputTable = options.getProject() + ':' + BQ_TABLE_NAME;
     TableSchema schema = new TableSchema().setFields(getTableFields());
     PCollection<FlightPred> preds = addPredictionInBatches(outFlights);
