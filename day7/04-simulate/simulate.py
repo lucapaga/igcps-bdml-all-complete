@@ -73,6 +73,7 @@ if __name__ == '__main__':
    parser.add_argument('--startTime', help='Example: 2015-05-01 00:00:00 UTC', required=True)
    parser.add_argument('--endTime', help='Example: 2015-05-03 00:00:00 UTC', required=True)
    parser.add_argument('--project', help='your project id, to create pubsub topic', required=True)
+   parser.add_argument('--dataset', help='your project dataset, must contain simevents table', required=True)
    parser.add_argument('--speedFactor', help='Example: 60 implies 1 hour of data sent to Cloud Pub/Sub in 1 minute', required=True, type=float)
    parser.add_argument('--jitter', help='type of jitter to add: None, uniform, exp  are the three options', default='None')
 
@@ -98,7 +99,7 @@ SELECT
   TIMESTAMP_ADD(NOTIFY_TIME, INTERVAL {} SECOND) AS NOTIFY_TIME,
   EVENT_DATA
 FROM
-  `flights.simevents`
+  `{}.simevents`
 WHERE
   NOTIFY_TIME >= TIMESTAMP('{}')
   AND NOTIFY_TIME < TIMESTAMP('{}')
@@ -106,6 +107,7 @@ ORDER BY
   NOTIFY_TIME ASC
 """
    query_job = bqclient.query(querystr.format(jitter,
+   											  args.dataset,
                                               args.startTime,
                                               args.endTime))
    rows = query_job.result()

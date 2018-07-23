@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export BUCKET='telemar-formazione-master-day6'
+export BUCKET='telemar-formazione-master-day7'
 
 export REGION='europe-west1'
 export MODEL_NAME="flights"

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 
-PROJECT_ID=$(gcloud config get-value core/project)
-
+source 00_configuration.sh
 
 for topic in 'arrived' 'departed' 'wheelsoff'
 do 
