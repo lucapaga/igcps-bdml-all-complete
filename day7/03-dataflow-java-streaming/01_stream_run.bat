@@ -1,4 +1,4 @@
-cd df-java-source
+cd df-java-streaming
 
 set BUCKET=telemar-flights
 set PROJECT=telemar-formazione-master

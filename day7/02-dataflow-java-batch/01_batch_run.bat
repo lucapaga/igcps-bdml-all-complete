@@ -1,4 +1,4 @@
-cd df-java-source
+cd df-java-batch
 
 set BUCKET=telemar-formazione-master-day7
 set PROJECT=telemar-formazione-master
