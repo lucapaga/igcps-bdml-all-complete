@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>it.injenia.formazione.gcp.dataplatform.dataflow</groupId>
-  <artifactId>df-java-source</artifactId>
+  <artifactId>df-java-batch</artifactId>
   <version>[1.0.0,2.0.0]</version>
 
   <properties>
