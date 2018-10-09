@@ -8,7 +8,7 @@
 	```
 * Run
 	```
-	pip install --upgrade google-cloud-bigquery
-	pip install --upgrade google-cloud-pubsub
+	pip install --user --upgrade google-cloud-bigquery
+	pip install --user --upgrade google-cloud-pubsub
 	python ./simulate.py --startTime '2015-05-01 00:00:00 UTC' --endTime '2015-05-04 00:00:00 UTC' --speedFactor=30 --project $DEVSHELL_PROJECT_ID
   ```
